@@ -1,0 +1,17 @@
+---
+# Development environment variables
+env_name: development
+app_version: "1.0.0-dev"
+
+# Web server configuration
+web_port: 80
+web_root: /var/www/html
+
+# Database configuration
+db_host: localhost
+db_name: app_dev
+db_user: dev_user
+
+# Application settings
+debug_mode: true
+log_level: debug

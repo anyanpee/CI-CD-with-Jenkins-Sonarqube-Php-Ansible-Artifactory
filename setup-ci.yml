@@ -1,24 +1,47 @@
 ---
-- name: Configure Nginx Reverse Proxy
-  hosts: nginx
+- name: Setup CI/CD Infrastructure
+  hosts: all
   become: yes
-  roles:
-    - nginx
+  gather_facts: yes
 
-- name: Setup Jenkins CI Server
-  hosts: jenkins
+  tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install common packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - wget
+        - git
+        - python3-pip
+        - unzip
+
+- name: Configure Jenkins Server
+  hosts: jenkins_servers
   become: yes
   roles:
     - jenkins
 
-- name: Setup SonarQube
-  hosts: sonarqube
+- name: Configure Web Servers
+  hosts: web_servers
+  become: yes
+  roles:
+    - nginx
+    - php
+
+- name: Configure SonarQube
+  hosts: sonarqube_servers
   become: yes
   roles:
     - sonarqube
 
-- name: Setup Artifact Repository
-  hosts: artifact_repository
+- name: Configure Artifactory
+  hosts: artifactory_servers
   become: yes
   roles:
     - artifactory

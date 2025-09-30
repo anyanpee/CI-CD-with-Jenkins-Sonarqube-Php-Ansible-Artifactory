@@ -1,0 +1,30 @@
+---
+- name: Install Java
+  apt:
+    name: openjdk-11-jdk
+    state: present
+
+- name: Download SonarQube
+  get_url:
+    url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.4.0.54424.zip
+    dest: /tmp/sonarqube.zip
+
+- name: Create SonarQube user
+  user:
+    name: sonarqube
+    system: yes
+    shell: /bin/bash
+
+- name: Extract SonarQube
+  unarchive:
+    src: /tmp/sonarqube.zip
+    dest: /opt
+    remote_src: yes
+    owner: sonarqube
+    group: sonarqube
+
+- name: Start SonarQube
+  shell: |
+    cd /opt/sonarqube-*/bin/linux-x86-64/
+    ./sonar.sh start
+  become_user: sonarqube

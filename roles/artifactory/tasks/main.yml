@@ -1,0 +1,20 @@
+---
+- name: Install Java
+  apt:
+    name: openjdk-11-jdk
+    state: present
+
+- name: Download Artifactory
+  get_url:
+    url: https://releases.jfrog.io/artifactory/bintray-artifactory/org/artifactory/oss/jfrog-artifactory-oss/7.27.6/jfrog-artifactory-oss-7.27.6-linux.tar.gz
+    dest: /tmp/artifactory.tar.gz
+
+- name: Extract Artifactory
+  unarchive:
+    src: /tmp/artifactory.tar.gz
+    dest: /opt
+    remote_src: yes
+
+- name: Start Artifactory
+  shell: |
+    /opt/artifactory-oss-*/bin/artifactory.sh start

@@ -1,0 +1,24 @@
+---
+- name: Configure Nginx Reverse Proxy
+  hosts: nginx
+  become: yes
+  roles:
+    - nginx
+
+- name: Setup Jenkins CI Server
+  hosts: jenkins
+  become: yes
+  roles:
+    - jenkins
+
+- name: Setup SonarQube
+  hosts: sonarqube
+  become: yes
+  roles:
+    - sonarqube
+
+- name: Setup Artifact Repository
+  hosts: artifact_repository
+  become: yes
+  roles:
+    - artifactory

@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                url: 'https://github.com/anyanpee/CI-CD-with-Jenkins-Sonarqube-Php-Ansible-Artifactory.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Building PHP application...'
+                sh 'composer install --no-dev'  // If using Composer
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // sh 'phpunit'  // If you have PHPUnit tests
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh 'sonar-scanner -Dsonar.projectKey=php-app -Dsonar.sources=. -Dsonar.host.url=http://44.248.211.137:9000'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline completed'
+        }
+    }
+}

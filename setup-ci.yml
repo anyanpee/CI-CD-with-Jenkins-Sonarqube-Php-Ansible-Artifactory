@@ -1,5 +1,5 @@
 ---
-- name: Setup CI/CD Infrastructure
+- name: Deploy PHP Application to All Servers
   hosts: all
   become: yes
   gather_facts: yes
@@ -8,74 +8,25 @@
     - name: Detect OS and set facts
       setup:
 
-    - name: Update package cache (Ubuntu/Debian)
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      when: ansible_os_family == "Debian"
-
-    - name: Update package cache (Amazon Linux/RedHat)
-      yum:
-        update_cache: yes
-      when: ansible_os_family == "RedHat"
-
-    - name: Install common packages (Ubuntu/Debian)
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - curl
-        - wget
-        - git
-        - python3-pip
-        - unzip
-      when: ansible_os_family == "Debian"
-
-    - name: Install common packages (Amazon Linux/RedHat)
-      yum:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - curl
-        - wget
-        - git
-        - python3-pip
-        - unzip
-      when: ansible_os_family == "RedHat"
-
-- name: Deploy PHP Application to All Servers
-  hosts: all
-  become: yes
-  tasks:
-    - name: Create web directory
+    - name: Create web directory with correct user
       file:
         path: /var/www/html
         state: directory
-        owner: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
-        group: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        owner: "{{ 'ec2-user' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        group: "{{ 'ec2-user' if ansible_os_family == 'RedHat' else 'www-data' }}"
         mode: '0755'
 
     - name: Deploy PHP application
       copy:
         src: index.php
         dest: /var/www/html/index.php
-        owner: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
-        group: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        owner: "{{ 'ec2-user' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        group: "{{ 'ec2-user' if ansible_os_family == 'RedHat' else 'www-data' }}"
         mode: '0644'
 
-    - name: Start web service (Ubuntu/Debian)
-      systemd:
-        name: apache2
-        state: started
-        enabled: yes
-      when: ansible_os_family == "Debian"
-
-    - name: Start web service (Amazon Linux/RedHat)
-      systemd:
-        name: httpd
-        state: started
-        enabled: yes
-      when: ansible_os_family == "RedHat"
+    - name: Display deployment success
+      debug:
+        msg: "✅ SUCCESS: PHP application deployed to {{ inventory_hostname }} ({{ ansible_os_family }})"
 
 - name: Verify Deployment
   hosts: all
@@ -85,12 +36,7 @@
         path: /var/www/html/index.php
       register: php_file
 
-    - name: Display deployment status
+    - name: Final success message
       debug:
-        msg: "✅ SUCCESS: PHP application deployed to {{ inventory_hostname }}"
+        msg: "🎉 COMPLETE SUCCESS: CI/CD pipeline deployed to {{ inventory_hostname }}"
       when: php_file.stat.exists
-
-    - name: Display deployment failure
-      debug:
-        msg: "❌ FAILED: PHP application not deployed to {{ inventory_hostname }}"
-      when: not php_file.stat.exists

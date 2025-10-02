@@ -10,11 +10,11 @@ pipeline {
         }
         
         stage('Build') {
-            steps {
-                echo 'Building PHP application...'
-                sh 'composer install --no-dev'
-            }
-        }
+    steps {
+         echo 'Building PHP application...'
+        sh 'echo "No composer.json - skipping composer install"'
+    }
+  }
         
         stage('Test') {
             steps {

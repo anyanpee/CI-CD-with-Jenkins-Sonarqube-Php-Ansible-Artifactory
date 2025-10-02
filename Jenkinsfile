@@ -24,11 +24,11 @@ pipeline {
         }
         
         stage('Static Code Analysis') {
-            steps {
-                echo 'Running SonarQube analysis...'
-                sh 'sonar-scanner -Dsonar.projectKey=php-todo-app'
-            }
-        }
+    steps {
+        echo 'Running SonarQube analysis...'
+        sh 'sonar-scanner -Dsonar.projectKey=php-todo-app -Dsonar.host.url=http://52.33.17.44:9000'
+    }
+}
         
         stage('Deploy to Dev') {
             steps {

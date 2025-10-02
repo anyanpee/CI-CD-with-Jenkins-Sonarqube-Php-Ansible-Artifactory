@@ -19,7 +19,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                 sh 'phpunit'  
+                 sh 'phpunit --version' 
             }
         }
         

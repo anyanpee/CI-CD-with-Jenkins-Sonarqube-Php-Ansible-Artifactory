@@ -19,14 +19,14 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // sh 'phpunit'  # Uncomment if you have PHPUnit tests
+                 sh 'phpunit'  
             }
         }
         
         stage('Static Code Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                // sh 'sonar-scanner -Dsonar.projectKey=php-todo-app'
+                sh 'sonar-scanner -Dsonar.projectKey=php-todo-app'
             }
         }
         

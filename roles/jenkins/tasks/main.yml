@@ -6,7 +6,7 @@
 
 - name: Add Jenkins repository key
   apt_key:
-    url: https://pkg.jenkins.io/debian/jenkins.io.key
+    url: http://pkg.jenkins.io/debian/jenkins.io.key  # Change https to http
     state: present
 
 - name: Add Jenkins repository

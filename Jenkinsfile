@@ -26,7 +26,11 @@ pipeline {
         stage('Static Code Analysis') {
     steps {
         echo 'Running SonarQube analysis...'
-        sh 'sonar-scanner -Dsonar.projectKey=php-todo-app -Dsonar.host.url=http://52.33.17.44:9000'
+        sh '''
+            pwd
+            ls -la
+            sonar-scanner -Dsonar.projectKey=php-todo-app -Dsonar.host.url=http://52.33.17.44:9000 -Dsonar.login=squ_c6b29fa3f9042d82efd1082be074424533957cc3
+        '''
     }
 }
         

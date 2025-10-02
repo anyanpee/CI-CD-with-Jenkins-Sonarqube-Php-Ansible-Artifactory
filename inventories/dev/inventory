@@ -1,17 +1,17 @@
 [web_servers]
-nginx-dev ansible_host=172.31.37.135 ansible_user=ubuntu
+nginx-dev ansible_host=ec2-54-191-207-123.us-west-2.compute.amazonaws.com ansible_user=ec2-user
+
+[sonarqube_servers]
+sonarqube-dev ansible_host=ec2-16-144-30-90.us-west-2.compute.amazonaws.com ansible_user=ec2-user
+
+[artifactory_servers]
+artifactory-dev ansible_host=ec2-52-33-17-44.us-west-2.compute.amazonaws.com ansible_user=ec2-user
 
 [app_servers]
 app-dev ansible_host=172.31.39.138 ansible_user=ubuntu
 
 [jenkins_servers]
 jenkins-dev ansible_host=172.31.39.138 ansible_user=ubuntu
-
-[sonarqube_servers]
-sonarqube-dev ansible_host=172.31.9.152 ansible_user=ubuntu
-
-[artifactory_servers]
-artifactory-dev ansible_host=172.31.32.11 ansible_user=ubuntu
 
 [all:vars]
 ansible_ssh_private_key_file=/var/jenkins_home/.ssh/oregon-keypair.pem

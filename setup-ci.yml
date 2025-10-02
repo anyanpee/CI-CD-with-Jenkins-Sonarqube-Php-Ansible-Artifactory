@@ -5,12 +5,21 @@
   gather_facts: yes
 
   tasks:
-    - name: Update package cache
+    - name: Detect OS and set facts
+      setup:
+
+    - name: Update package cache (Ubuntu/Debian)
       apt:
         update_cache: yes
         cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
 
-    - name: Install common packages
+    - name: Update package cache (Amazon Linux/RedHat)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Install common packages (Ubuntu/Debian)
       apt:
         name: "{{ item }}"
         state: present
@@ -20,28 +29,68 @@
         - git
         - python3-pip
         - unzip
+      when: ansible_os_family == "Debian"
 
-- name: Configure Jenkins Server
-  hosts: jenkins_servers
-  become: yes
-  roles:
-    - jenkins
+    - name: Install common packages (Amazon Linux/RedHat)
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - wget
+        - git
+        - python3-pip
+        - unzip
+      when: ansible_os_family == "RedHat"
 
-- name: Configure Web Servers
-  hosts: web_servers
+- name: Deploy PHP Application to All Servers
+  hosts: all
   become: yes
-  roles:
-    - nginx
-    - php
+  tasks:
+    - name: Create web directory
+      file:
+        path: /var/www/html
+        state: directory
+        owner: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        group: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        mode: '0755'
 
-- name: Configure SonarQube
-  hosts: sonarqube_servers
-  become: yes
-  roles:
-    - sonarqube
+    - name: Deploy PHP application
+      copy:
+        src: index.php
+        dest: /var/www/html/index.php
+        owner: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        group: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        mode: '0644'
 
-- name: Configure Artifactory
-  hosts: artifactory_servers
-  become: yes
-  roles:
-    - artifactory
+    - name: Start web service (Ubuntu/Debian)
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Start web service (Amazon Linux/RedHat)
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+- name: Verify Deployment
+  hosts: all
+  tasks:
+    - name: Check if PHP file was deployed
+      stat:
+        path: /var/www/html/index.php
+      register: php_file
+
+    - name: Display deployment status
+      debug:
+        msg: "✅ SUCCESS: PHP application deployed to {{ inventory_hostname }}"
+      when: php_file.stat.exists
+
+    - name: Display deployment failure
+      debug:
+        msg: "❌ FAILED: PHP application not deployed to {{ inventory_hostname }}"
+      when: not php_file.stat.exists
